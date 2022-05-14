@@ -16,8 +16,8 @@ class SistemaSolar(object):
         self.superficie_texto=self.fuente.render("Created by OGG, with PyGame and icons of Dan Wiersema", True, self.blanco)
 
         #Dimensiones de la pantalla
-        self.ancho=1024
-        self.alto=768
+        self.ancho=1280
+        self.alto=1024
 
         self.superficie_tierra=4*3.14*6370
         #Posicion del ultimo planeta
@@ -30,7 +30,7 @@ class SistemaSolar(object):
         self.iconos=["Mercury.png", "Venus.png", "Earth.png", "Mars.png", "Jupiter.png",
                 "Saturn.png", "Neptune.png", "Uranus.png", "Pluto.png"]
 
-        self.nombre=["Mercurio", "Venus", "Tierra", "Marte", "Jupiter", "Saturno", "Neptuno", "Urano", "Pluton"]
+        self.nombre=["Mercurio", "Venus", "Tierra", "Marte", "Jupiter", "Saturno", "Urano", "Neptuno","Pluton"]
         #Distancias al sol de los planetas en millones de km
         self.distancias_sol=[57.9, 108.2, 149.6, 227.9, 778.3, 1427, 2871, 4497, 5913]
 
@@ -101,13 +101,28 @@ class SistemaSolar(object):
             self.actualizar_incrementos_angulo()
             self.cargar_imagenes_planetas()
 
+    def resetear(self):
+        self.centro_x=self.ancho/2
+        self.centro_y=self.alto/2
+        self.rect_sol.centerx=self.ancho/2
+        self.rect_sol.centery=self.alto/2
+        #Todos los planetas van situados con respecto al sol
+        self.offset_x_sol=self.centro_x
+        self.offset_y_sol=self.centro_y
+        self.escala=9.5
+        self.escala_velocidad=2
+        self.actualizar_incrementos_angulo()
+        self.centro_pantalla=(int(self.centro_x), int(self.centro_y))
+
+    
     def cargar_imagenes_planetas(self):
-        escala_imagen=self.escala*2048
+        
+        tam_planeta=(32,32)
         for i in range (0,  self.num_planetas):
             
             ruta=os.path.join("img", self.iconos[i])
             superficie_sin_escalar=pygame.image.load(ruta)
-            superficie=pygame.transform.smoothscale(superficie_sin_escalar, (escala_imagen/512, escala_imagen/512))
+            superficie=pygame.transform.smoothscale(superficie_sin_escalar, tam_planeta)
             self.imagen.insert(i, superficie)
             self.rectangulo.insert(i, self.imagen[i].get_rect())
 
@@ -142,30 +157,34 @@ class SistemaSolar(object):
 
     def on_tecla_pulsada(self, evento):
         if evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.key.key_code("S"):
+            if evento.key == pygame.key.key_code("W"):
                 self.rect_sol.centery+=1
                 self.offset_y_sol=self.offset_y_sol+1
                 self.centro_y=self.centro_y+1
                 self.centro_pantalla=(int(self.centro_x), int(self.centro_y))
                 return
-            if evento.key == pygame.key.key_code("W"):
+            if evento.key == pygame.key.key_code("S"):
                 self.rect_sol.centery-=1
                 self.offset_y_sol=self.offset_y_sol-1
                 self.centro_y=self.centro_y-1
                 self.centro_pantalla=(int(self.centro_x), int(self.centro_y))
                 return
-            if evento.key == pygame.key.key_code("A"):
+            if evento.key == pygame.key.key_code("D"):
                 self.rect_sol.centerx-=1
                 self.offset_x_sol=self.offset_x_sol-1
                 self.centro_x=self.centro_x-1
                 self.centro_pantalla=(int(self.centro_x), int(self.centro_y))
                 return
-            if evento.key == pygame.key.key_code("D"):
+            if evento.key == pygame.key.key_code("A"):
                 self.rect_sol.centerx+=1
                 self.offset_x_sol=self.offset_x_sol+1
                 self.centro_x=self.centro_x+1
                 self.centro_pantalla=(int(self.centro_x), int(self.centro_y))
                 return
+            if evento.key == pygame.key.key_code("R"):
+                self.resetear()
+                return
+            
             if evento.key == pygame.K_DOWN:
                 if self.escala>15.5:
                     return
