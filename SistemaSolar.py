@@ -6,6 +6,40 @@ import pygame
 import math
 import os.path
 
+class ObjetoCurvaEliptica(object):
+    def __init__(self, radio1, radio2, offset_x_sol, offset_y_sol, textura, tamanio, periodo_rotacion, angulo_elipse,  pantalla, escala, color=(255,255,255)) -> None:
+        self.radio1=radio1
+        self.radio2=radio2
+        self.x=offset_x_sol
+        self.y=offset_y_sol
+        self.superficie=None
+        self.rectangulo=None
+        self.periodo_rotacion=periodo_rotacion
+        self.cargar_textura(textura, tamanio)
+        self.angulo_elipse=angulo_elipse
+        self.color_elipse=color
+        self.pantalla=pantalla
+        self.escala=escala
+        self.angulo_actual=0
+    def cargar_textura(self, textura, tam_planeta):
+        ruta=os.path.join("img", textura)
+        superficie_sin_escalar=pygame.image.load(ruta)
+        superficie=pygame.transform.smoothscale(superficie_sin_escalar, tam_planeta)
+        self.superficie=superficie
+        self.rectangulo=self.superficie.get_rect()
+    
+    def dibujar_elipse(self):
+        target_rect = self.rectangulo
+        shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
+        pygame.draw.ellipse(shape_surf, self.color_elipse, (self.x, self.y, *target_rect.size), width=1)
+        rotated_surf = pygame.transform.rotate(shape_surf, self.angulo_elipse)
+        self.pantalla.blit(rotated_surf, rotated_surf.get_rect(center = target_rect.center))
+    
+    def get_xy(self,angulo):
+        x=self.radio2* math.cos(self.angulo_actual)
+        y=self.radio1* math.sin(self.angulo_actual)
+        return (x,y)
+
 class SistemaSolar(object):
     def __init__(self) -> None:
         pygame.init()
@@ -100,6 +134,14 @@ class SistemaSolar(object):
             #Es necesario tener calculados inicialmente los angulos básicos
             self.actualizar_incrementos_angulo()
             self.cargar_imagenes_planetas()
+            
+            self.objetos_elipticos=[]
+            self.anadir_elipse()
+   
+    def anadir_elipse(self):
+        o=ObjetoCurvaEliptica(500,100,140, 40, "Ceres.png", (18, 128), 40, 1, self.pantalla, self.escala)
+        
+        self.objetos_elipticos.append(o)
 
     def resetear(self):
         self.centro_x=self.ancho/2
@@ -254,6 +296,9 @@ class SistemaSolar(object):
                     pygame.image.save(self.superficie_pantalla, ".\\frames\\"+cad_numero_alineado+".jpg")
                     #Y despues de salvada se pasa al siguiente frame
                     numero_frame=numero_frame+1
+            #Actualizamos tambien los objetos elipticos:
+            for objeto_eliptico in self.objetos_elipticos:
+                objeto_eliptico.dibujar_elipse()
             pygame.display.flip()
             
 if __name__=="__main__":
